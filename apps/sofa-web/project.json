@@ -1,0 +1,24 @@
+{
+  "name": "sofa-web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/sofa-web/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "sofa-web:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "sofa-web:build:development"
+        },
+        "production": {
+          "buildTarget": "sofa-web:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}
