@@ -1,0 +1,24 @@
+{
+  "name": "order",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/order/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "order:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "order:build:development"
+        },
+        "production": {
+          "buildTarget": "order:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}
