@@ -1,0 +1,187 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  username     String        @unique
+  password     String
+  email        String        @unique
+  role         Role
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  Vendor       Vendor[]
+  Orders       Order[]
+  Reviews      Review[]
+  ShoppingCart ShoppingCart?
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+  VENDOR
+}
+
+model Vendor {
+  id               Int       @id @default(autoincrement())
+  userId           Int       @unique
+  storeName        String
+  storeDescription String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  User             User      @relation(fields: [userId], references: [id])
+  Products         Product[]
+}
+
+model Category {
+  id               Int        @id @default(autoincrement())
+  categoryName     String
+  parentCategory   Category?  @relation("SubCategory", fields: [parentCategoryId], references: [id])
+  subCategories    Category[] @relation("SubCategory")
+  parentCategoryId Int?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  Products         Product[]
+}
+
+model Product {
+  id            Int            @id @default(autoincrement())
+  vendorId      Int?
+  categoryId    Int
+  productName   String
+  description   String
+  price         Float
+  stockQuantity Int
+  dimensions    String?
+  weight        Float
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  imageUrls     ProductImage[]
+  Vendor        Vendor?        @relation(fields: [vendorId], references: [id])
+  Category      Category       @relation(fields: [categoryId], references: [id])
+  orderItems    OrderItem[]
+  Reviews       Review[]
+  CartItem      CartItem[]
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  imageUrl  String
+  createdAt DateTime @default(now())
+  Product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  totalPrice      Float
+  orderStatus     OrderStatus
+  paymentStatus   PaymentStatus
+  shippingAddress String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  User            User?         @relation(fields: [userId], references: [id])
+  OrderItems      OrderItem[]
+  Payment         Payment?
+  Shipping        Shipping?
+}
+
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PAID
+  UNPAID
+}
+
+model OrderItem {
+  id         Int     @id @default(autoincrement())
+  orderId    Int
+  productId  Int
+  quantity   Int
+  unitPrice  Float
+  totalPrice Float
+  Order      Order   @relation(fields: [orderId], references: [id])
+  Product    Product @relation(fields: [productId], references: [id])
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  userId     Int?
+  rating     Int
+  reviewText String?
+  createdAt  DateTime @default(now())
+  Product    Product  @relation(fields: [productId], references: [id])
+  User       User?    @relation(fields: [userId], references: [id])
+}
+
+model ShoppingCart {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @unique
+  createdAt DateTime   @default(now())
+  User      User?      @relation(fields: [userId], references: [id])
+  CartItems CartItem[]
+}
+
+model CartItem {
+  id           Int          @id @default(autoincrement())
+  cartId       Int
+  productId    Int
+  quantity     Int
+  ShoppingCart ShoppingCart @relation(fields: [cartId], references: [id])
+  Product      Product      @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  orderId       Int           @unique
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus
+  createdAt     DateTime      @default(now())
+  Order         Order         @relation(fields: [orderId], references: [id])
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+}
+
+model Shipping {
+  id             Int            @id @default(autoincrement())
+  orderId        Int            @unique
+  shippingMethod ShippingMethod
+  trackingNumber String?
+  shippingStatus ShippingStatus
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  Order          Order          @relation(fields: [orderId], references: [id])
+}
+
+enum ShippingMethod {
+  STANDARD
+  EXPRESS
+}
+
+enum ShippingStatus {
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+}
