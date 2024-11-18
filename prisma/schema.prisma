@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
+  id           Int           @id @default(autoincrement()) @map("user_id")
   username     String        @unique
   password     String
   email        String        @unique
@@ -25,6 +25,8 @@ model User {
   Orders       Order[]
   Reviews      Review[]
   ShoppingCart ShoppingCart?
+
+  @@index([username], name: "idx_username")
 }
 
 enum Role {
@@ -42,10 +44,12 @@ model Vendor {
   updatedAt        DateTime  @updatedAt
   User             User      @relation(fields: [userId], references: [id])
   Products         Product[]
+
+  @@index([userId], name: "idx_vendor_userId")
 }
 
 model Category {
-  id               Int        @id @default(autoincrement())
+  id               Int        @id @default(autoincrement()) @map("category_id")
   categoryName     String
   parentCategory   Category?  @relation("SubCategory", fields: [parentCategoryId], references: [id])
   subCategories    Category[] @relation("SubCategory")
@@ -53,10 +57,12 @@ model Category {
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
   Products         Product[]
+
+  @@index([categoryName], name: "idx_categoryName")
 }
 
 model Product {
-  id            Int            @id @default(autoincrement())
+  id            Int            @id @default(autoincrement()) @map("product_id")
   vendorId      Int?
   categoryId    Int
   productName   String
@@ -73,6 +79,9 @@ model Product {
   orderItems    OrderItem[]
   Reviews       Review[]
   CartItem      CartItem[]
+
+  @@index([productName], name: "idx_productName")
+  @@index([vendorId], name: "idx_vendorId")
 }
 
 model ProductImage {
@@ -92,10 +101,12 @@ model Order {
   shippingAddress String
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  User            User?         @relation(fields: [userId], references: [id])
+  User            User          @relation(fields: [userId], references: [id])
   OrderItems      OrderItem[]
   Payment         Payment?
   Shipping        Shipping?
+
+  @@index([userId], name: "idx_order_userId")
 }
 
 enum OrderStatus {

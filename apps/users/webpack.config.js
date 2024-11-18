@@ -3,7 +3,7 @@ const { join } = require('path');
 
 module.exports = {
   output: {
-    path: join(__dirname, '../../dist/apps/auth'),
+    path: join(__dirname, '../../dist/apps/users'),
   },
   plugins: [
     new NxWebpackPlugin({
@@ -14,8 +14,6 @@ module.exports = {
       assets: ['./src/assets'],
       optimization: false,
       outputHashing: 'none',
-      // assets: ['**/*.proto'],
-      watchAssets: true,
     }),
   ],
 };

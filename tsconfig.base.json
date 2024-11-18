@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@sofa-web/common": ["libs/common/src/index.ts"]
+      "@sofa-web/common": ["libs/common/src/index.ts"],
+      "@sofa-web/prisma": ["libs/prisma/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

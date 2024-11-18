@@ -1,24 +1,24 @@
 {
-  "name": "auth",
+  "name": "users",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/auth/src",
+  "sourceRoot": "apps/users/src",
   "projectType": "application",
   "targets": {
-    "build": {},
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "auth:build"
+        "buildTarget": "users:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "auth:build:development"
+          "buildTarget": "users:build:development"
         },
         "production": {
-          "buildTarget": "auth:build:production"
+          "buildTarget": "users:build:production"
         }
-      }
+      },
+      "dependsOn": ["@sofa-web/prisma"]
     }
   },
   "tags": []

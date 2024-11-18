@@ -7,6 +7,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -16,7 +17,7 @@ async function bootstrap() {
       options: {
         url: '0.0.0.0:50051',
         package: 'auth',
-        protoPath: './proto/auth.proto',
+        protoPath: join(__dirname, '/assets/auth.proto'),
       },
     }
   );
