@@ -37,7 +37,8 @@ export class ProductController implements OnModuleInit {
   private async createProduct(
     @Body() body: CreateProductRequest
   ): Promise<Observable<CreateProductResponse>> {
-    return this.svc.createProduct(body);
+    return null;
+    // return this.svc.createProduct(body);
   }
 
   @Get(':id')

@@ -1,9 +1,8 @@
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
-import { Observable } from "rxjs";
+import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
-//changed from 'protobufPackage'
-export const protobufPackageOrder = "order";
+// export const protobufPackage = "order";
 
 export interface CreateOrderRequest {
   userId: number;
@@ -17,7 +16,7 @@ export interface CreateOrderResponse {
   id: number;
 }
 
-export const ORDER_PACKAGE_NAME = "order";
+export const ORDER_PACKAGE_NAME = 'order';
 
 export interface OrderServiceClient {
   createOrder(request: CreateOrderRequest): Observable<CreateOrderResponse>;
@@ -25,23 +24,40 @@ export interface OrderServiceClient {
 
 export interface OrderServiceController {
   createOrder(
-    request: CreateOrderRequest,
-  ): Promise<CreateOrderResponse> | Observable<CreateOrderResponse> | CreateOrderResponse;
+    request: CreateOrderRequest
+  ):
+    | Promise<CreateOrderResponse>
+    | Observable<CreateOrderResponse>
+    | CreateOrderResponse;
 }
 
 export function OrderServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["createOrder"];
+    const grpcMethods: string[] = ['createOrder'];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("OrderService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method
+      );
+      GrpcMethod('OrderService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("OrderService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method
+      );
+      GrpcStreamMethod('OrderService', method)(
+        constructor.prototype[method],
+        method,
+        descriptor
+      );
     }
   };
 }
 
-export const ORDER_SERVICE_NAME = "OrderService";
+export const ORDER_SERVICE_NAME = 'OrderService';

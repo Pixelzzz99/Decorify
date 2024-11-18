@@ -17,7 +17,7 @@ async function bootstrap() {
       options: {
         url: '0.0.0.0:50051',
         package: 'auth',
-        protoPath: join(__dirname, '/assets/auth.proto'),
+        protoPath: join(__dirname, '/proto/auth.proto'),
       },
     }
   );

@@ -2,8 +2,7 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 
-//changed from 'protobufPackage'
-export const protobufPackageAuth = 'auth';
+// export const protobufPackage = "auth";
 
 export interface RegisterRequest {
   name: string;

@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   public async register({
-    username,
+    name,
     email,
     password,
   }: RegisterRequestDto): Promise<RegisterResponse> {
@@ -29,7 +29,7 @@ export class AuthService {
 
     const hashedPassworrd = await this.jwtService.hashPassword(password);
     this.authRepository.createUser({
-      username,
+      username: name,
       email,
       password: hashedPassworrd,
     });
