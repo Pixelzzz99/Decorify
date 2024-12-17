@@ -14,7 +14,7 @@ import {
   OrderServiceClient,
   ORDER_SERVICE_NAME,
 } from '@sofa-web/common';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { Request } from 'express';
 
 @Controller('order')

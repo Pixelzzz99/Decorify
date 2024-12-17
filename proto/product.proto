@@ -3,12 +3,82 @@ syntax = 'proto3';
 package product;
 
 service ProductService {
-  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {}
-  rpc FindOneProduct(FindOneProductRequest) returns (FindOneProductResponse) {}
-  rpc DecreaseStock(DecreaseStockRequest) returns (DecreaseStockResponse) {}
+  rpc GetProducts (GetProductsRequest) returns (GetProductsResponse) {}
+  rpc GetProduct(GetProductRequest) returns (Product) {}
+  rpc CreateProduct(CreateProductRequest) returns (Product) {}
+  rpc UpdateProduct(UpdateProductRequest) returns (Product);
 }
 
-//CreateProduct
+message Product {
+  int32 id = 1;
+  int32 vendorId = 2;
+  int32 categoryId = 3;
+  string productName = 4;
+  string description = 5;
+  float price = 6;
+  int32 stockQuantity = 7;
+  string dimensions = 8;
+  float weight = 9;
+  string createdAt = 10;
+  string updatedAt = 11;
+  repeated ProductImage imageUrls = 12;
+  Vendor vendor = 13;
+  Category category = 14;
+  repeated OrderItem orderItems = 15;
+  repeated Review reviews = 16;
+  repeated CartItem cartItems = 17;
+}
+
+message ProductImage {
+  int32 id = 1;
+  string url = 2;
+}
+
+message Vendor {
+  int32 id = 1;
+  string name = 2;
+}
+
+message Category {
+  int32 id = 1;
+  string name = 2;
+}
+
+message OrderItem {
+  int32 id = 1;
+  int32 productId = 2;
+  int32 quantity = 3;
+}
+
+message Review {
+  int32 id = 1;
+  int32 productId = 2;
+  string reviewText = 3;
+  float rating = 4;
+}
+
+message CartItem {
+  int32 id = 1;
+  int32 productId = 2;
+  int32 quantity = 3;
+}
+
+message GetProductsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  Category category = 3;
+}
+
+message GetProductsResponse {
+  int32 status = 1;
+  int32 total = 2; 
+  repeated Product products = 3;
+  repeated string errors = 4;
+}
+
+message GetProductRequest {
+  int32 id = 1;
+}
 
 message CreateProductRequest {
   string name = 1;
@@ -17,39 +87,15 @@ message CreateProductRequest {
   double price = 4;
 }
 
-message CreateProductResponse {
-  int32 status = 1;
-  repeated string errors = 2;
-  int32 id = 3;
-}
-
-//FindOne
-
-message FindOneData {
+message UpdateProductRequest {
   int32 id = 1;
-  string name = 2;
-  string sku = 3;
-  int32 stock = 4;
-  double price = 5;
-}
-
-message FindOneProductRequest {
-  int32 id = 1;
-}
-
-message FindOneProductResponse {
-  int32 status = 1;
-  repeated string errors = 2;
-  FindOneData data = 3;
-}
-
-//DecreaseStock
-
-message DecreaseStockRequest {
-  int32 id = 1;
-}
-
-message DecreaseStockResponse {
-  int32 status = 1;
-  repeated string errors = 2;
+  optional string productName = 2;
+  optional string description = 3;
+  optional float price = 4;
+  optional int32 stockQuantity = 5;
+  optional string dimensions = 6;
+  optional float weight = 7;
+  Category category = 8;
+  optional string imageUrls = 9;
+  optional Vendor vendor = 10;
 }

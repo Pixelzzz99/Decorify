@@ -10,7 +10,7 @@ import { PrismaModule } from '@sofa-web/prisma';
   imports: [
     PrismaModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: process.env.JWT_SECRET || 'secret',
       signOptions: { expiresIn: '1d' },
     }),
   ],

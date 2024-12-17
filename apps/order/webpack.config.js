@@ -11,9 +11,10 @@ module.exports = {
       compiler: 'tsc',
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets'],
+      assets: ['./src/assets', './src/proto'],
       optimization: false,
       outputHashing: 'none',
+      watchAssets: true,
     }),
   ],
 };

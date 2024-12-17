@@ -21,9 +21,9 @@ export class AuthService {
     email,
     password,
   }: RegisterRequestDto): Promise<RegisterResponse> {
-    const existingUser = await this.authRepository.findUserByEmail(email);
+    const user = await this.authRepository.findUserByEmail(email);
 
-    if (existingUser) {
+    if (user) {
       throw new UnauthorizedException('User already exists');
     }
 
@@ -46,8 +46,8 @@ export class AuthService {
     const user = await this.authRepository.findUserByEmail(email);
     if (!user) {
       return {
-        status: HttpStatus.NOT_FOUND,
-        errors: ['User not found'],
+        status: HttpStatus.UNAUTHORIZED,
+        errors: ['Invalid credentials'],
         token: null,
       };
     }
@@ -59,7 +59,7 @@ export class AuthService {
     if (!isPasswordValid) {
       return {
         status: HttpStatus.UNAUTHORIZED,
-        errors: ['Invalid password'],
+        errors: ['Invalid credentials'],
         token: null,
       };
     }
@@ -67,6 +67,7 @@ export class AuthService {
     const token = this.jwtService.generateToken({
       id: user.id,
       email: user.email,
+      role: user.role,
     });
     return {
       status: HttpStatus.OK,
@@ -78,44 +79,27 @@ export class AuthService {
   public async validate({
     token,
   }: ValidateRequestDto): Promise<ValidateTokenResponse> {
-    const decoded = await this.jwtService.verify(token);
+    try {
+      const decoded = await this.jwtService.verify(token);
+      if (!decoded) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          errors: ['Invalid token'],
+          userId: null,
+        };
+      }
 
-    if (!decoded) {
       return {
-        status: HttpStatus.FORBIDDEN,
-        errors: ['Invalid token'],
-        userId: null,
+        status: HttpStatus.OK,
+        errors: null,
+        userId: decoded.id,
       };
-    }
-
-    const auth = await this.authRepository.findUserById(decoded.id);
-    if (!auth) {
-      return {
-        status: HttpStatus.CONFLICT,
-        errors: ['User not found'],
-        userId: null,
-      };
-    }
-    return {
-      status: HttpStatus.OK,
-      errors: null,
-      userId: auth.id,
-    };
-  }
-
-  public async validateUser(id: number) {
-    const auth = await this.authRepository.findUserById(id);
-    if (!auth) {
+    } catch {
       return {
         status: HttpStatus.CONFLICT,
         errors: ['User not found'],
         userId: null,
       };
     }
-    return {
-      status: HttpStatus.OK,
-      errors: null,
-      userId: auth.id,
-    };
   }
 }

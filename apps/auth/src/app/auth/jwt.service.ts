@@ -2,6 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { JwtService as Jwt } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
+type generateTokenDto = {
+  id: number;
+  email: string;
+  role: string;
+};
+
 @Injectable()
 export class JwtService {
   constructor(private readonly jwtService: Jwt) {}
@@ -10,10 +16,11 @@ export class JwtService {
     return this.jwtService.decode(token);
   }
 
-  public generateToken({ id, email }: { id: number; email: string }): string {
+  public generateToken({ id, email, role }: generateTokenDto): string {
     return this.jwtService.sign({
       id,
       email,
+      role,
     });
   }
 
@@ -29,7 +36,7 @@ export class JwtService {
     return bcrypt.hash(password, salt);
   }
 
-  public async verify(token: string): Promise<{ id: number; email: string }> {
+  public async verify(token: string): Promise<generateTokenDto> {
     try {
       return this.jwtService.verify(token);
     } catch (e) {

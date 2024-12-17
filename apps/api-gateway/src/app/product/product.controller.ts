@@ -18,7 +18,7 @@ import {
   CreateProductRequest,
   CreateProductResponse,
 } from '@sofa-web/common';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller('product')
 export class ProductController implements OnModuleInit {
@@ -37,8 +37,8 @@ export class ProductController implements OnModuleInit {
   private async createProduct(
     @Body() body: CreateProductRequest
   ): Promise<Observable<CreateProductResponse>> {
-    return null;
-    // return this.svc.createProduct(body);
+    // return null;
+    return this.svc.createProduct(body);
   }
 
   @Get(':id')
