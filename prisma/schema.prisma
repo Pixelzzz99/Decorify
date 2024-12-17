@@ -48,40 +48,48 @@ model Vendor {
   @@index([userId], name: "idx_vendor_userId")
 }
 
+model ProductCategory {
+  productId  Int
+  categoryId Int
+
+  product  Product  @relation(fields: [productId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@id([productId, categoryId]) // Композитный первичный ключ
+}
+
 model Category {
-  id               Int        @id @default(autoincrement()) @map("category_id")
+  id               Int               @id @default(autoincrement()) @map("category_id")
   categoryName     String
-  parentCategory   Category?  @relation("SubCategory", fields: [parentCategoryId], references: [id])
-  subCategories    Category[] @relation("SubCategory")
+  parentCategory   Category?         @relation("SubCategory", fields: [parentCategoryId], references: [id])
+  subCategories    Category[]        @relation("SubCategory")
   parentCategoryId Int?
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  Products         Product[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  products         ProductCategory[]
 
   @@index([categoryName], name: "idx_categoryName")
 }
 
 model Product {
-  id            Int            @id @default(autoincrement()) @map("product_id")
-  vendorId      Int?
-  categoryId    Int
+  id            Int               @id @default(autoincrement()) @map("product_id")
+  vendorId      Int
   productName   String
   description   String
   price         Float
   stockQuantity Int
-  dimensions    String?
+  dimensions    Json?
   weight        Float
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  imageUrls     ProductImage[]
-  Vendor        Vendor?        @relation(fields: [vendorId], references: [id])
-  Category      Category       @relation(fields: [categoryId], references: [id])
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  categories    ProductCategory[]
+  images        ProductImage[]
+  Vendor        Vendor            @relation(fields: [vendorId], references: [id])
   orderItems    OrderItem[]
   Reviews       Review[]
-  CartItem      CartItem[]
+  CartItems     CartItem[]
 
-  @@index([productName], name: "idx_productName")
-  @@index([vendorId], name: "idx_vendorId")
+  @@index([price], name: "idx_price")
 }
 
 model ProductImage {
