@@ -122,6 +122,7 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  CREATED
 }
 
 enum PaymentStatus {
