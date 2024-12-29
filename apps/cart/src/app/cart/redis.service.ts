@@ -18,8 +18,8 @@ export class RedisService implements OnModuleInit {
     return value ? JSON.parse(value) : null;
   }
 
-  async set(key: string, value: any) {
-    await this.client.set(key, JSON.stringify(value));
+  async set(key: string, value: unknown, ttl = 3600) {
+    await this.client.set(key, JSON.stringify(value), { EX: ttl });
   }
 
   async del(key: string) {

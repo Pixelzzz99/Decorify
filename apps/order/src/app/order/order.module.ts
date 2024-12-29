@@ -17,6 +17,15 @@ import { OrderService } from './order.service';
           url: '0.0.0.0:50051',
         },
       },
+      {
+        name: 'PAYMENT_SERVICE',
+        transport: Transport.GRPC,
+        options: {
+          package: 'payment',
+          protoPath: './proto/payment.proto',
+          url: '0.0.0.0:50053',
+        },
+      },
     ]),
   ],
   controllers: [OrderController],

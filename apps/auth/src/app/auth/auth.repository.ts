@@ -22,12 +22,9 @@ export class AuthRepository {
     });
   }
 
-  async createUser(data: Omit<Prisma.UserCreateInput, 'role'>) {
+  async createUser(data: Prisma.UserCreateInput) {
     return this.prisma.user.create({
-      data: {
-        ...data,
-        role: Role.CUSTOMER,
-      },
+      data,
     });
   }
 }

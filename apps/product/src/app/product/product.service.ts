@@ -78,6 +78,7 @@ export class ProductService {
         },
       });
     } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException('Failed to create product');
     }
   }

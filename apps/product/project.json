@@ -18,6 +18,14 @@
           "buildTarget": "product:build:production"
         }
       }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/product"],
+      "options": {
+        "jestConfig": "apps/product/jest.config.ts",
+        "passWithNoTests": true
+      }
     }
   },
   "tags": []

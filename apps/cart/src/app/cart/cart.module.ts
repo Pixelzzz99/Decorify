@@ -3,9 +3,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { CartController } from './cart.controller';
 import { CartService } from './cart.service';
 import { RedisService } from './redis.service';
+import { PrismaModule } from '@sofa-web/prisma';
 
 @Module({
   imports: [
+    PrismaModule,
     ClientsModule.register([
       {
         name: 'PRODUCT_SERVICE',

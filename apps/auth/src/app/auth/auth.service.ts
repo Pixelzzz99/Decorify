@@ -20,6 +20,7 @@ export class AuthService {
     name,
     email,
     password,
+    role,
   }: RegisterRequestDto): Promise<RegisterResponse> {
     const user = await this.authRepository.findUserByEmail(email);
 
@@ -32,6 +33,7 @@ export class AuthService {
       username: name,
       email,
       password: hashedPassworrd,
+      role,
     });
 
     return {

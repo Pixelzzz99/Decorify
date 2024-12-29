@@ -1,0 +1,24 @@
+{
+  "name": "vendor",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/vendor/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "vendor:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "vendor:build:development"
+        },
+        "production": {
+          "buildTarget": "vendor:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}
