@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement()) @map("user_id")
+  id           Int           @id @default(autoincrement())
   username     String        @unique
   password     String
   email        String        @unique
@@ -59,7 +59,7 @@ model ProductCategory {
 }
 
 model Category {
-  id               Int               @id @default(autoincrement()) @map("category_id")
+  id               Int               @id @default(autoincrement())
   categoryName     String
   parentCategory   Category?         @relation("SubCategory", fields: [parentCategoryId], references: [id])
   subCategories    Category[]        @relation("SubCategory")
@@ -72,7 +72,7 @@ model Category {
 }
 
 model Product {
-  id            Int               @id @default(autoincrement()) @map("product_id")
+  id            Int               @id @default(autoincrement())
   vendorId      Int
   productName   String
   description   String

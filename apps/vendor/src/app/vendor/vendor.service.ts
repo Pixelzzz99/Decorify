@@ -7,6 +7,13 @@ export class VendorService {
   constructor(private prisma: PrismaService) {}
 
   async createVendor(dto: CreateVendorDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: dto.userId },
+    });
+
+    if (!user || user.role !== 'VENDOR') {
+      throw new NotFoundException('User with role VENDOR not found');
+    }
     const vendor = await this.prisma.vendor.create({
       data: {
         userId: dto.userId,
@@ -35,6 +42,10 @@ export class VendorService {
       where: { id: vendorId },
       data: dto,
     });
+
+    if (!vendor) {
+      throw new NotFoundException('Vendor not found');
+    }
     return vendor;
   }
 

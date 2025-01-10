@@ -8,11 +8,16 @@ import { Product } from '@prisma/client';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
+interface ProductFull extends Product {
+  categories: { productId: number; categoryId: number }[];
+  images: { imageUrl: string }[];
+}
+
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
-  async getProducts(skip = 0, take = 10): Promise<Product[]> {
+  async getProducts(skip = 0, take = 10): Promise<ProductFull[]> {
     return await this.prisma.product.findMany({
       skip,
       take,
@@ -24,7 +29,7 @@ export class ProductService {
     });
   }
 
-  async getProduct(id: number): Promise<Product> {
+  async getProduct(id: number): Promise<ProductFull> {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
@@ -40,7 +45,9 @@ export class ProductService {
     return product;
   }
 
-  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
+  async createProduct(
+    createProductDto: CreateProductDto
+  ): Promise<ProductFull> {
     const {
       productName,
       description,
@@ -53,6 +60,7 @@ export class ProductService {
       imageUrls,
     } = createProductDto;
 
+    //Check if categories exist
     try {
       return await this.prisma.product.create({
         data: {
@@ -73,7 +81,11 @@ export class ProductService {
           },
         },
         include: {
-          categories: true,
+          categories: {
+            include: {
+              category: true,
+            },
+          },
           images: true,
         },
       });
@@ -86,7 +98,7 @@ export class ProductService {
   async updateProduct(
     productId: number,
     updateProductDto: UpdateProductDto
-  ): Promise<Product> {
+  ): Promise<ProductFull> {
     const {
       productName,
       description,
@@ -140,7 +152,7 @@ export class ProductService {
     }
   }
 
-  async deleteProduct(productId: number): Promise<Product> {
+  async deleteProduct(productId: number): Promise<ProductFull> {
     try {
       return await this.prisma.product.delete({
         where: { id: productId },
