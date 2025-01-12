@@ -110,50 +110,70 @@ export class ProductService {
       imageUrls,
     } = updateProductDto;
 
-    try {
-      await this.prisma.$transaction(async (tx) => {
-        tx.productCategory.deleteMany({
-          where: {
-            productId,
-          },
-        });
-        tx.productImage.deleteMany({
-          where: {
-            productId,
-          },
-        });
-      });
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: {
+        categories: true,
+        images: true,
+      },
+    });
 
-      return await this.prisma.product.update({
-        where: { id: productId },
-        data: {
-          productName,
-          description,
-          price,
-          stockQuantity,
-          dimensions,
-          weight,
-          categories: {
-            create: categoryIds.map((id) => ({ categoryId: id })),
-          },
-          images: {
-            createMany: {
-              data: imageUrls.map((url) => ({ imageUrl: url })),
-            },
-          },
-        },
-        include: {
-          categories: true,
-          images: true,
-        },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to update product');
+    if (!product) {
+      throw new NotFoundException('Product not found');
     }
+
+    const categories = categoryIds
+      .filter((id) => !product.categories.some((c) => c.categoryId === id))
+      .map((id) => ({ categoryId: id }));
+
+    const images = imageUrls
+      .filter((url) => !product.images.some((i) => i.imageUrl === url))
+      .map((url) => ({ imageUrl: url }));
+
+    return await this.prisma.product.update({
+      where: { id: productId },
+      data: {
+        productName,
+        description,
+        price,
+        stockQuantity,
+        dimensions,
+        weight,
+        categories: {
+          createMany: {
+            data: categories,
+          },
+        },
+        images: {
+          createMany: {
+            data: images,
+          },
+        },
+      },
+      include: {
+        categories: {
+          include: {
+            category: true,
+          },
+        },
+        images: true,
+      },
+    });
   }
 
   async deleteProduct(productId: number): Promise<ProductFull> {
     try {
+      const deleteOperations = [
+        this.prisma.productCategory.deleteMany({
+          where: { productId },
+        }),
+        this.prisma.productImage.deleteMany({
+          where: { productId },
+        }),
+      ];
+
+      await this.prisma.$transaction(deleteOperations);
+
       return await this.prisma.product.delete({
         where: { id: productId },
         include: {
@@ -162,6 +182,7 @@ export class ProductService {
         },
       });
     } catch (error) {
+      console.log(error.message);
       throw new NotFoundException('Product not found');
     }
   }

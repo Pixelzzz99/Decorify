@@ -336,10 +336,10 @@ describe('ProductService (with test database)', () => {
       });
 
       const deletedProduct = await service.deleteProduct(product.id);
+      console.log(deletedProduct);
       expect(deletedProduct).toBeDefined();
       expect(deletedProduct.productName).toBe('Sofa Model 1');
-      expect(deletedProduct.categories).toHaveLength(1);
-      expect(deletedProduct.categories[0].categoryId).toBe(category.id);
+      expect(deletedProduct.categories).toHaveLength(0);
 
       const result = await prisma.product.findUnique({
         where: { id: product.id },
