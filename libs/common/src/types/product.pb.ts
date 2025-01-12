@@ -6,37 +6,30 @@ export const protobufPackage = "product";
 
 export interface Product {
   id: number;
-  vendorId: number;
-  categoryId: number;
   productName: string;
   description: string;
   price: number;
   stockQuantity: number;
-  dimensions: string;
   weight: number;
+  images: ProductImage[];
+  categories: ProductCategory[];
   createdAt: string;
+  /**
+   * repeated OrderItem orderItems = 15;
+   * repeated Review reviews = 16;
+   * repeated CartItem cartItems = 17;
+   */
   updatedAt: string;
-  imageUrls: ProductImage[];
-  vendor: Vendor | undefined;
-  category: Category | undefined;
-  orderItems: OrderItem[];
-  reviews: Review[];
-  cartItems: CartItem[];
 }
 
 export interface ProductImage {
   id: number;
-  url: string;
+  imageUrl: string;
 }
 
-export interface Vendor {
+export interface ProductCategory {
   id: number;
-  name: string;
-}
-
-export interface Category {
-  id: number;
-  name: string;
+  categoryId: string;
 }
 
 export interface OrderItem {
@@ -58,70 +51,100 @@ export interface CartItem {
   quantity: number;
 }
 
-export interface GetProductsRequest {
-  page: number;
-  limit: number;
-  category: Category | undefined;
-}
-
-export interface GetProductsResponse {
-  status: number;
-  total: number;
-  products: Product[];
-  errors: string[];
-}
-
-export interface GetProductRequest {
-  id: number;
-}
-
-export interface CreateProductRequest {
-  name: string;
-  sku: string;
-  stock: number;
+export interface CreateProducRequest {
+  productName: string;
+  description: string;
   price: number;
+  stockQuantity: number;
+  weight: number;
+  vendorId: number;
+  categoryIds: number[];
+  imageUrls: string[];
+}
+
+export interface CreateProductResponse {
+  product: Product | undefined;
 }
 
 export interface UpdateProductRequest {
   id: number;
-  productName?: string | undefined;
-  description?: string | undefined;
-  price?: number | undefined;
-  stockQuantity?: number | undefined;
-  dimensions?: string | undefined;
-  weight?: number | undefined;
-  category: Category | undefined;
-  imageUrls?: string | undefined;
-  vendor?: Vendor | undefined;
+  productName: string;
+  description: string;
+  price: number;
+  stockQuantity: number;
+  weight: number;
+  categoryIds: number[];
+  imageUrls: string[];
+}
+
+export interface UpdateProductResponse {
+  product: Product | undefined;
+}
+
+export interface GetProductByIdRequest {
+  id: number;
+}
+
+export interface GetProductByIdResponse {
+  product: Product | undefined;
+}
+
+export interface GetProductsRequest {
+  skip: number;
+  take: number;
+}
+
+export interface GetProductsResponse {
+  products: Product[];
+}
+
+export interface DeleteProductRequest {
+  id: number;
+}
+
+export interface DeleteProductResponse {
+  message: string;
 }
 
 export const PRODUCT_PACKAGE_NAME = "product";
 
 export interface ProductServiceClient {
+  createProduct(request: CreateProducRequest): Observable<CreateProductResponse>;
+
+  updateProduct(request: UpdateProductRequest): Observable<UpdateProductResponse>;
+
+  getProductById(request: GetProductByIdRequest): Observable<GetProductByIdResponse>;
+
   getProducts(request: GetProductsRequest): Observable<GetProductsResponse>;
 
-  getProduct(request: GetProductRequest): Observable<Product>;
-
-  createProduct(request: CreateProductRequest): Observable<Product>;
-
-  updateProduct(request: UpdateProductRequest): Observable<Product>;
+  deleteProduct(request: DeleteProductRequest): Observable<DeleteProductResponse>;
 }
 
 export interface ProductServiceController {
+  createProduct(
+    request: CreateProducRequest,
+  ): Promise<CreateProductResponse> | Observable<CreateProductResponse> | CreateProductResponse;
+
+  updateProduct(
+    request: UpdateProductRequest,
+  ): Promise<UpdateProductResponse> | Observable<UpdateProductResponse> | UpdateProductResponse;
+
+  getProductById(
+    request: GetProductByIdRequest,
+  ): Promise<GetProductByIdResponse> | Observable<GetProductByIdResponse> | GetProductByIdResponse;
+
   getProducts(
     request: GetProductsRequest,
   ): Promise<GetProductsResponse> | Observable<GetProductsResponse> | GetProductsResponse;
 
-  getProduct(request: GetProductRequest): Promise<Product> | Observable<Product> | Product;
-
-  createProduct(request: CreateProductRequest): Promise<Product> | Observable<Product> | Product;
-
-  updateProduct(request: UpdateProductRequest): Promise<Product> | Observable<Product> | Product;
+  deleteProduct(
+    request: DeleteProductRequest,
+  ): Promise<DeleteProductResponse> | Observable<DeleteProductResponse> | DeleteProductResponse;
 }
 
 export function ProductServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getProducts", "getProduct", "createProduct", "updateProduct"];
+    const grpcMethods: string[] = ["createProduct", "updateProduct", "getProductById", "getProducts", "deleteProduct"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("ProductService", method)(constructor.prototype[method], method, descriptor);

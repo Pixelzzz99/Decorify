@@ -7,7 +7,9 @@
     "proto:auth": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/auth.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
     "proto:order": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/order.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
     "proto:product": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/product.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
-    "proto:all": "npm run proto:auth && npm run proto:order && npm run proto:product"
+    "proto:category": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/category.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
+    "proto:vendor": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/vendor.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
+    "proto:all": "npm run proto:auth && npm run proto:order && npm run proto:product && npm run proto:category"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.10.3",
