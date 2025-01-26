@@ -17,12 +17,8 @@ import {
   CreateCategoryRequest,
   CreateCategoryResponse,
   GetCategoriesResponse,
-  GetCategoryByIdRequest,
   GetCategoryByIdResponse,
-  UpdateCategoryRequest,
   UpdateCategoryResponse,
-  DeleteCategoryRequest,
-  DeleteCategoryResponse,
 } from '@sofa-web/common';
 
 @Controller('category')
