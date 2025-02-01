@@ -6,44 +6,51 @@ import { Category } from '@prisma/client';
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
-  async getCategories(): Promise<Category[]> {
-    return await this.prisma.category.findMany();
+  async getCategories(): Promise<{ categories: Category[] }> {
+    return {
+      categories: await this.prisma.category.findMany(),
+    };
   }
 
-  async getCategoryById(id: number): Promise<Category> {
+  async getCategoryById(id: number): Promise<{ category: Category }> {
     const category = await this.prisma.category.findUnique({
       where: { id },
     });
     if (!category) {
       throw new NotFoundException('Category not found');
     }
-    return category;
+    return { category };
   }
 
-  async createCategory(name: string): Promise<Category> {
-    return await this.prisma.category.create({
+  async createCategory(name: string): Promise<{ category: Category }> {
+    const category = await this.prisma.category.create({
       data: {
         categoryName: name,
       },
     });
+    return { category };
   }
 
-  async updateCategory(id: number, name: string): Promise<Category> {
+  async updateCategory(
+    id: number,
+    name: string
+  ): Promise<{ category: Category }> {
     const category = await this.prisma.category.findUnique({
       where: { id },
     });
     if (!category) {
       throw new NotFoundException('Category not found');
     }
-    return await this.prisma.category.update({
+    const updatedCategory = await this.prisma.category.update({
       where: { id },
       data: {
         categoryName: name,
       },
     });
+    return { category: updatedCategory };
   }
 
-  async deleteCategory(id: number): Promise<Category> {
+  async deleteCategory(id: number): Promise<{ message: string }> {
     const category = await this.prisma.category.findUnique({
       where: { id },
     });
@@ -51,8 +58,9 @@ export class CategoryService {
     if (!category) {
       throw new NotFoundException('Category not found');
     }
-    return await this.prisma.category.delete({
+    await this.prisma.category.delete({
       where: { id },
     });
+    return { message: 'Category deleted successfully' };
   }
 }

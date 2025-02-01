@@ -1,0 +1,43 @@
+syntax = 'proto3';
+
+package vendor;
+
+service VendorService {
+    rpc CreateVendor(CreateVendorRequest) returns (VendorResponse) {}
+    rpc GetVendor(GetVendorRequest) returns (VendorResponse) {}
+    rpc UpdateVendor(UpdateVendorRequest) returns (VendorResponse) {}
+    rpc DeleteVendor(DeleteVendorRequest) returns (DeleteVendorResponse) {}
+}
+
+message CreateVendorRequest {
+    int32 userId = 1;
+    string storeName = 2;
+    string storeDescription = 3;
+}
+
+message GetVendorRequest {
+    int32 userId = 1;
+}
+
+message UpdateVendorRequest {
+    int32 userId = 1;
+    string storeName = 2;
+    string storeDescription = 3;
+}
+
+message DeleteVendorRequest {
+    int32 userId = 1;
+}
+
+message VendorResponse {
+    int32 id = 1;
+    int32 userId = 2;
+    string storeName = 3;
+    string storeDescription = 4;
+    string createdAt = 5;
+    string updatedAt = 6;
+}
+
+message DeleteVendorResponse {
+    string message = 1;
+}

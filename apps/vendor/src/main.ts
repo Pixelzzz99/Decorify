@@ -3,6 +3,7 @@
  * This is only a minimal backend to get started.
  */
 
+import { join } from 'path';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -15,14 +16,14 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
-        url: '0.0.0.0:50051',
+        url: '0.0.0.0:50052',
         package: 'vendor',
-        protoPath: 'proto/vendor.proto',
+        protoPath: join(__dirname, '/proto/vendor.proto'),
       },
     }
   );
+  Logger.log(`🚀 Microservice is running on: http://localhost:50052/`);
   await app.listen();
-  Logger.log(`🚀 Vendor Service is running on gRPC`);
 }
 
 bootstrap();

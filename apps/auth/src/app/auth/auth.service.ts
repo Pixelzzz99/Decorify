@@ -8,6 +8,7 @@ import {
 } from '@sofa-web/common';
 import { RegisterRequestDto, ValidateRequestDto } from './dto';
 import { AuthRepository } from './auth.repository';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +34,7 @@ export class AuthService {
       username: name,
       email,
       password: hashedPassworrd,
-      role,
+      role: role ? (role as Role) : 'CUSTOMER',
     });
 
     return {

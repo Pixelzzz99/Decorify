@@ -16,7 +16,7 @@ export class ProductController {
   }
 
   @GrpcMethod('ProductService', 'GetProducts')
-  async getAllProducts(data: { skip: number; take: number }) {
+  async getAllProducts(data: { skip?: number; take?: number }) {
     const products = await this.productService.getProducts(
       data.skip,
       data.take

@@ -8,7 +8,7 @@ export interface Category {
   id: number;
   categoryName: string;
   parentCategoryId: number;
-  createAt: string;
+  createdAt: string;
   updatedAt: string;
 }
 
