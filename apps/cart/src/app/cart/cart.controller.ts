@@ -1,40 +1,96 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { CartService } from './cart.service';
+import { status } from '@grpc/grpc-js';
 
 @Controller()
 export class CartController {
-  constructor(private cartService: CartService) {}
+  constructor(private readonly cartService: CartService) {}
 
-  @GrpcMethod('CartService', 'AddItem')
-  async addItem(data: { userId: string; productId: string; quantity: number }) {
-    return await this.cartService.addItem(
-      data.userId,
-      data.productId,
-      data.quantity
-    );
+  @GrpcMethod('CartService', 'AddToCart')
+  async addToCart(data: {
+    userId: number;
+    productId: number;
+    quantity: number;
+  }) {
+    try {
+      const result = await this.cartService.addToCart(
+        data.userId,
+        data.productId,
+        data.quantity
+      );
+      return { status: status.OK, data: result };
+    } catch (error) {
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: error.message,
+      });
+    }
   }
 
-  @GrpcMethod('CartService', 'RemoveItem')
-  async removeItem(data: { userId: string; productId: string }) {
-    return await this.cartService.removeItem(data.userId, data.productId);
+  @GrpcMethod('CartService', 'RemoveFromCart')
+  async removeFromCart(data: { userId: number; productId: number }) {
+    try {
+      const result = await this.cartService.removeFromCart(
+        data.userId,
+        data.productId
+      );
+      return { status: status.OK, data: result };
+    } catch (error) {
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: error.message,
+      });
+    }
   }
 
   @GrpcMethod('CartService', 'GetCart')
-  async getCart(data: { userId: string }) {
-    return await this.cartService.getCart(data.userId);
+  async getCart(data: { userId: number }) {
+    try {
+      const result = await this.cartService.getCart(data.userId.toString());
+      return { status: status.OK, data: result };
+    } catch (error) {
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: error.message,
+      });
+    }
   }
 
-  @GrpcMethod('CartService', 'UpdateQuantity')
-  async updateQuantity(data: {
-    userId: string;
-    productId: string;
+  @GrpcMethod('CartService', 'UpdateCartItem')
+  async updateCartItem(data: {
+    userId: number;
+    productId: number;
     quantity: number;
   }) {
-    return await this.cartService.updateQuantity(
-      data.userId,
-      data.productId,
-      data.quantity
-    );
+    try {
+      const result = await this.cartService.updateCartItem(
+        data.userId,
+        data.productId,
+        data.quantity
+      );
+      return { status: status.OK, data: result };
+    } catch (error) {
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: error.message,
+      });
+    }
+  }
+
+  @GrpcMethod('CartService', 'SyncCart')
+  async syncCart(data: { userId: number; deviceId: string }) {
+    try {
+      const result = await this.cartService.syncCart(
+        data.userId,
+        data.deviceId
+      );
+      return { status: status.OK, data: result };
+    } catch (error) {
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: error.message,
+      });
+    }
   }
 }

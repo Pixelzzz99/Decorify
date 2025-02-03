@@ -3,14 +3,42 @@ import { createClient } from 'redis';
 
 @Injectable()
 export class RedisService implements OnModuleInit {
-  client: ReturnType<typeof createClient>;
+  private client: any;
 
-  constructor() {
-    this.client = createClient({ url: process.env.REDIS_URL });
-    this.client.on('error', (err) => console.log('Redis Client Error', err));
-  }
   async onModuleInit() {
+    this.client = createClient({
+      url: process.env.REDIS_URL || 'redis://localhost:6379',
+    });
+
     await this.client.connect();
+  }
+
+  async hSet(key: string, field: string, value: string) {
+    return await this.client.hSet(key, field, value);
+  }
+
+  async hGet(key: string, field: string) {
+    return await this.client.hGet(key, field);
+  }
+
+  async hGetAll(key: string) {
+    return await this.client.hGetAll(key);
+  }
+
+  async hDel(key: string, field: string) {
+    return await this.client.hDel(key, field);
+  }
+
+  async hMSet(key: string, data: Record<string, string>) {
+    return await this.client.hSet(key, data);
+  }
+
+  async expire(key: string, seconds: number) {
+    return await this.client.expire(key, seconds);
+  }
+
+  async del(key: string) {
+    return await this.client.del(key);
   }
 
   async get(key: string) {
@@ -20,10 +48,6 @@ export class RedisService implements OnModuleInit {
 
   async set(key: string, value: unknown, ttl = 3600) {
     await this.client.set(key, JSON.stringify(value), { EX: ttl });
-  }
-
-  async del(key: string) {
-    await this.client.del(key);
   }
 
   getCartKey(userId: string) {

@@ -4,6 +4,8 @@ import { RedisService } from './redis.service';
 import { firstValueFrom } from 'rxjs';
 import { Product } from '@prisma/client';
 import { PrismaService } from '@sofa-web/prisma';
+import { RpcException } from '@nestjs/microservices';
+import { status } from '@grpc/grpc-js';
 
 interface CatalogService {
   getProduct(data: { id: string }): Promise<any>;
@@ -12,6 +14,7 @@ interface CatalogService {
 @Injectable()
 export class CartService implements OnModuleInit {
   private catalogService: CatalogService;
+  private readonly CART_EXPIRY = 60 * 60 * 24 * 7; // 7 days
 
   constructor(
     @Inject('CATALOG_SERVICE') private client: ClientGrpc,
@@ -105,10 +108,6 @@ export class CartService implements OnModuleInit {
     return cart;
   }
 
-  async clearCart(userId: string) {
-    await this.redisService.del(this.redisService.getCartKey(userId));
-  }
-
   async persistCartToDb(userId: string) {
     const cart = await this.getCart(userId);
 
@@ -171,5 +170,124 @@ export class CartService implements OnModuleInit {
     const cartKey = this.redisService.getCartKey(userId);
     await this.redisService.set(cartKey, redisCart);
     return redisCart;
+  }
+
+  async addToCart(userId: number, productId: number, quantity: number) {
+    try {
+      const cartKey = `cart:${userId}`;
+      const product = await this.prismaService.product.findUnique({
+        where: { id: productId },
+      });
+
+      if (!product) {
+        throw new RpcException({
+          status: status.NOT_FOUND,
+          message: 'Product not found',
+        });
+      }
+
+      const cartItem = {
+        productId,
+        quantity,
+        price: product.price,
+        totalPrice: product.price * quantity,
+      };
+
+      await this.redisService.hSet(
+        cartKey,
+        productId.toString(),
+        JSON.stringify(cartItem)
+      );
+      await this.redisService.expire(cartKey, this.CART_EXPIRY);
+
+      return await this.getCart(userId.toString());
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: 'Failed to add item to cart',
+      });
+    }
+  }
+
+  async removeFromCart(userId: number, productId: number) {
+    try {
+      const cartKey = `cart:${userId}`;
+      await this.redisService.hDel(cartKey, productId.toString());
+      return await this.getCart(userId.toString());
+    } catch (error) {
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: 'Failed to remove item from cart',
+      });
+    }
+  }
+
+  async updateCartItem(userId: number, productId: number, quantity: number) {
+    try {
+      const cartKey = `cart:${userId}`;
+      const itemStr = await this.redisService.hGet(
+        cartKey,
+        productId.toString()
+      );
+
+      if (!itemStr) {
+        throw new RpcException({
+          status: status.NOT_FOUND,
+          message: 'Item not found in cart',
+        });
+      }
+
+      const item = JSON.parse(itemStr);
+      item.quantity = quantity;
+      item.totalPrice = item.price * quantity;
+
+      await this.redisService.hSet(
+        cartKey,
+        productId.toString(),
+        JSON.stringify(item)
+      );
+      return await this.getCart(userId.toString());
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: 'Failed to update cart item',
+      });
+    }
+  }
+
+  async clearCart(userId: number) {
+    try {
+      const cartKey = `cart:${userId}`;
+      await this.redisService.del(cartKey);
+      return { success: true };
+    } catch (error) {
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: 'Failed to clear cart',
+      });
+    }
+  }
+
+  async syncCart(userId: number, deviceId: string) {
+    try {
+      const userCartKey = `cart:${userId}`;
+      const deviceCartKey = `cart:device:${deviceId}`;
+
+      // Merge device cart into user cart
+      const deviceCart = await this.redisService.hGetAll(deviceCartKey);
+      if (Object.keys(deviceCart).length > 0) {
+        await this.redisService.hMSet(userCartKey, deviceCart);
+        await this.redisService.del(deviceCartKey);
+      }
+
+      return await this.getCart(userId.toString());
+    } catch (error) {
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: 'Failed to sync cart',
+      });
+    }
   }
 }
