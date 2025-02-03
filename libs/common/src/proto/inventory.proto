@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package inventory;
+
+service InventoryService {
+  rpc UpdateStock (UpdateStockRequest) returns (InventoryResponse) {}
+  rpc GetProductStock (GetProductStockRequest) returns (InventoryResponse) {}
+  rpc SyncWithProduct (SyncWithProductRequest) returns (InventoryResponse) {}
+}
+
+message UpdateStockRequest {
+  int32 productId = 1;
+  int32 quantity = 2;
+}
+
+message GetProductStockRequest {
+  int32 productId = 1;
+}
+
+message SyncWithProductRequest {
+  int32 productId = 1;
+}
+
+message InventoryResponse {
+  int32 status = 1;
+  InventoryData data = 2;
+  string error = 3;
+}
+
+message InventoryData {
+  int32 id = 1;
+  int32 productId = 2;
+  int32 quantity = 3;
+  int32 lowStockThreshold = 4;
+  string createdAt = 5;
+  string updatedAt = 6;
+} 

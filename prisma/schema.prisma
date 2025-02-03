@@ -88,6 +88,7 @@ model Product {
   orderItems    OrderItem[]
   Reviews       Review[]
   CartItems     CartItem[]
+  inventory     Inventory?
 
   @@index([price], name: "idx_price")
 }
@@ -204,4 +205,16 @@ enum ShippingStatus {
   IN_TRANSIT
   DELIVERED
   RETURNED
+}
+
+model Inventory {
+  id                Int      @id @default(autoincrement())
+  productId         Int      @unique
+  quantity          Int      @default(0)
+  lowStockThreshold Int      @default(10)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  product           Product  @relation(fields: [productId], references: [id])
+
+  @@map("inventories")
 }

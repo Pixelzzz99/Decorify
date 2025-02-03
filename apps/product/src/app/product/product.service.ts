@@ -7,6 +7,9 @@ import { PrismaService } from '@sofa-web/prisma';
 import { Product } from '@prisma/client';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { InventoryClient } from '../inventory/inventory.client';
+import { RpcException } from '@nestjs/microservices';
+import { status } from '@grpc/grpc-js';
 
 interface ProductFull extends Product {
   categories: { productId: number; categoryId: number }[];
@@ -15,7 +18,10 @@ interface ProductFull extends Product {
 
 @Injectable()
 export class ProductService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private inventoryClient: InventoryClient
+  ) {}
 
   async getProducts(skip = 0, take = 10): Promise<ProductFull[]> {
     return await this.prisma.product.findMany({
@@ -62,7 +68,7 @@ export class ProductService {
 
     //Check if categories exist
     try {
-      return await this.prisma.product.create({
+      const product = await this.prisma.product.create({
         data: {
           productName,
           description,
@@ -89,9 +95,17 @@ export class ProductService {
           images: true,
         },
       });
+
+      // Sync with inventory service
+      await this.inventoryClient.syncWithProduct(product.id);
+
+      return product;
     } catch (error) {
       console.log(error);
-      throw new InternalServerErrorException('Failed to create product');
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: 'Failed to create product',
+      });
     }
   }
 
@@ -130,7 +144,7 @@ export class ProductService {
       .filter((url) => !product.images.some((i) => i.imageUrl === url))
       .map((url) => ({ imageUrl: url }));
 
-    return await this.prisma.product.update({
+    const updatedProduct = await this.prisma.product.update({
       where: { id: productId },
       data: {
         productName,
@@ -159,6 +173,11 @@ export class ProductService {
         images: true,
       },
     });
+
+    // Sync with inventory service
+    await this.inventoryClient.updateStock(productId, stockQuantity);
+
+    return updatedProduct;
   }
 
   async deleteProduct(productId: number): Promise<ProductFull> {
@@ -184,6 +203,35 @@ export class ProductService {
     } catch (error) {
       console.log(error.message);
       throw new NotFoundException('Product not found');
+    }
+  }
+
+  async getProductById(productId: number) {
+    try {
+      const product = await this.prisma.product.findUnique({
+        where: { id: productId },
+      });
+
+      if (!product) {
+        throw new RpcException({
+          status: status.NOT_FOUND,
+          message: 'Product not found',
+        });
+      }
+
+      // Get inventory data
+      const inventory = await this.inventoryClient.getProductStock(productId);
+
+      return {
+        ...product,
+        inventory: inventory.data,
+      };
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+      throw new RpcException({
+        status: status.INTERNAL,
+        message: 'Failed to get product',
+      });
     }
   }
 }
