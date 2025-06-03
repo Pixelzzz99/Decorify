@@ -25,10 +25,10 @@ export class VendorService {
     return vendor;
   }
 
-  async getVendorById(vendorId: number) {
+  async getVendorById(userId: number) {
     const vendor = await this.prisma.vendor.findUnique({
       where: {
-        id: vendorId,
+        userId,
       },
     });
     if (!vendor) {
@@ -37,9 +37,9 @@ export class VendorService {
     return vendor;
   }
 
-  async updateVendor(vendorId: number, dto: Partial<CreateVendorDto>) {
+  async updateVendor(userId: number, dto: Partial<CreateVendorDto>) {
     const vendor = await this.prisma.vendor.update({
-      where: { id: vendorId },
+      where: { userId },
       data: dto,
     });
 
@@ -49,9 +49,9 @@ export class VendorService {
     return vendor;
   }
 
-  async deleteVendor(vendorId: number) {
+  async deleteVendor(userId: number) {
     await this.prisma.vendor.delete({
-      where: { id: vendorId },
+      where: { userId },
     });
     return { message: 'Vendor deleted successfully' };
   }
