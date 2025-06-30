@@ -10,7 +10,7 @@ import { CategoryController } from './category.controller';
         name: CATEGORY_SERVICE_NAME,
         transport: Transport.GRPC,
         options: {
-          url: '0.0.0.0:50051',
+          url: 'localhost:50053',
           package: CATEGORY_PACKAGE_NAME,
           protoPath: 'proto/category.proto',
         },

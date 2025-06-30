@@ -30,7 +30,7 @@ export class AuthService {
     }
 
     const hashedPassworrd = await this.jwtService.hashPassword(password);
-    this.authRepository.createUser({
+    await this.authRepository.createUser({
       username: name,
       email,
       password: hashedPassworrd,

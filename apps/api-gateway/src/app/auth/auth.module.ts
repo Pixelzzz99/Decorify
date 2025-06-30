@@ -39,7 +39,7 @@ import { AuthService } from './auth.service';
         options: {
           url: 'localhost:50052',
           package: ORDER_PACKAGE_NAME,
-          protoPath: './proto/product.proto',
+          protoPath: './proto/order.proto',
         },
       },
     ]),

@@ -16,13 +16,13 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
-        url: '0.0.0.0:50052',
+        url: '0.0.0.0:50055',
         package: 'vendor',
         protoPath: join(__dirname, '/proto/vendor.proto'),
       },
     }
   );
-  Logger.log(`🚀 Microservice is running on: http://localhost:50052/`);
+  Logger.log(`🚀 Microservice is running on: http://localhost:50055/`);
   await app.listen();
 }
 

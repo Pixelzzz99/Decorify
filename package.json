@@ -9,7 +9,22 @@
     "proto:product": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/product.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
     "proto:category": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/category.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
     "proto:vendor": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/vendor.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
-    "proto:all": "npm run proto:auth && npm run proto:order && npm run proto:product && npm run proto:category"
+    "proto:payment": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/payment.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
+    "proto:cart": "protoc --plugin=protoc-get-ts_proto=./node_modules/.bin/protoc-gen-ts_proto -I=./proto --ts_proto_out=./libs/common/src/types ./proto/cart.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb",
+    "proto:all": "npm run proto:auth && npm run proto:order && npm run proto:product && npm run proto:category && npm run proto:vendor && npm run proto:payment && npm run proto:cart",
+    "build": "nx build",
+    "test": "nx test",
+    "dev:db": "docker-compose -f docker-compose.dev.yml up -d",
+    "dev:auth": "nx serve auth",
+    "dev:product": "nx serve product",
+    "dev:order": "nx serve order",
+    "dev:payment": "nx serve payment",
+    "dev:vendor": "nx serve vendor",
+    "dev:cart": "nx serve cart",
+    "dev:gateway": "nx serve api-gateway",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.10.3",
@@ -37,7 +52,8 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "stripe": "^17.5.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "tsx": "^4.20.3"
   },
   "devDependencies": {
     "@nestjs/schematics": "^10.0.1",

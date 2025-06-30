@@ -18,7 +18,7 @@ import {
   PRODUCT_SERVICE_NAME,
   CreateProductResponse,
   GetProductByIdResponse,
-  CreateProducRequest,
+  CreateProductRequest,
   GetProductsResponse,
   UpdateProductRequest,
   UpdateProductResponse,
@@ -40,7 +40,7 @@ export class ProductController implements OnModuleInit {
   @Post()
   // @UseGuards(AuthGuard)
   private async createProduct(
-    @Body() body: CreateProducRequest
+    @Body() body: CreateProductRequest
   ): Promise<Observable<CreateProductResponse>> {
     // return null;
     return this.svc.createProduct(body);

@@ -17,7 +17,7 @@ export class CartService implements OnModuleInit {
   private readonly CART_EXPIRY = 60 * 60 * 24 * 7; // 7 days
 
   constructor(
-    @Inject('CATALOG_SERVICE') private client: ClientGrpc,
+    @Inject('PRODUCT_SERVICE') private client: ClientGrpc,
     private readonly redisService: RedisService,
     private readonly prismaService: PrismaService
   ) {}
