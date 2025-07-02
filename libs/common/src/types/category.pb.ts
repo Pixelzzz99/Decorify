@@ -1,8 +1,8 @@
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Observable } from "rxjs";
 
-// export const protobufPackage = "category";
+export const protobufPackage = "category";
 
 export interface Category {
   id: number;
@@ -39,7 +39,8 @@ export interface GetCategoryByIdResponse {
   category: Category | undefined;
 }
 
-export interface GetCategoriesRequest {}
+export interface GetCategoriesRequest {
+}
 
 export interface GetCategoriesResponse {
   categories: Category[];
@@ -53,100 +54,136 @@ export interface DeleteCategoryResponse {
   message: string;
 }
 
-export const CATEGORY_PACKAGE_NAME = 'category';
+/** Новые сообщения для улучшенной работы с категориями */
+export interface CategoryWithStats {
+  category: Category | undefined;
+  productsCount: number;
+  subcategoriesCount: number;
+  subCategories: CategoryWithStats[];
+}
+
+export interface GetCategoryTreeRequest {
+}
+
+export interface GetCategoryTreeResponse {
+  categories: CategoryWithStats[];
+}
+
+export interface GetProductsByCategoryRequest {
+  categoryId: number;
+  includeSubcategories: boolean;
+  skip: number;
+  take: number;
+}
+
+export interface ProductInCategory {
+  id: number;
+  productName: string;
+  description: string;
+  price: number;
+  stockQuantity: number;
+  imageUrls: string[];
+  vendorName: string;
+  vendorId: number;
+}
+
+export interface GetProductsByCategoryResponse {
+  products: ProductInCategory[];
+  total: number;
+  categoryIds: number[];
+}
+
+export interface GetCategoryBreadcrumbsRequest {
+  categoryId: number;
+}
+
+export interface GetCategoryBreadcrumbsResponse {
+  breadcrumbs: Category[];
+}
+
+export const CATEGORY_PACKAGE_NAME = "category";
 
 export interface CategoryServiceClient {
-  createCategory(
-    request: CreateCategoryRequest
-  ): Observable<CreateCategoryResponse>;
+  createCategory(request: CreateCategoryRequest): Observable<CreateCategoryResponse>;
 
-  updateCategory(
-    request: UpdateCategoryRequest
-  ): Observable<UpdateCategoryResponse>;
+  updateCategory(request: UpdateCategoryRequest): Observable<UpdateCategoryResponse>;
 
-  getCategoryById(
-    request: GetCategoryByIdRequest
-  ): Observable<GetCategoryByIdResponse>;
+  getCategoryById(request: GetCategoryByIdRequest): Observable<GetCategoryByIdResponse>;
 
-  getCategories(
-    request: GetCategoriesRequest
-  ): Observable<GetCategoriesResponse>;
+  getCategories(request: GetCategoriesRequest): Observable<GetCategoriesResponse>;
 
-  deleteCategory(
-    request: DeleteCategoryRequest
-  ): Observable<DeleteCategoryResponse>;
+  deleteCategory(request: DeleteCategoryRequest): Observable<DeleteCategoryResponse>;
+
+  /** Новые методы для улучшенной работы с категориями */
+
+  getCategoryTree(request: GetCategoryTreeRequest): Observable<GetCategoryTreeResponse>;
+
+  getProductsByCategory(request: GetProductsByCategoryRequest): Observable<GetProductsByCategoryResponse>;
+
+  getCategoryBreadcrumbs(request: GetCategoryBreadcrumbsRequest): Observable<GetCategoryBreadcrumbsResponse>;
 }
 
 export interface CategoryServiceController {
   createCategory(
-    request: CreateCategoryRequest
-  ):
-    | Promise<CreateCategoryResponse>
-    | Observable<CreateCategoryResponse>
-    | CreateCategoryResponse;
+    request: CreateCategoryRequest,
+  ): Promise<CreateCategoryResponse> | Observable<CreateCategoryResponse> | CreateCategoryResponse;
 
   updateCategory(
-    request: UpdateCategoryRequest
-  ):
-    | Promise<UpdateCategoryResponse>
-    | Observable<UpdateCategoryResponse>
-    | UpdateCategoryResponse;
+    request: UpdateCategoryRequest,
+  ): Promise<UpdateCategoryResponse> | Observable<UpdateCategoryResponse> | UpdateCategoryResponse;
 
   getCategoryById(
-    request: GetCategoryByIdRequest
-  ):
-    | Promise<GetCategoryByIdResponse>
-    | Observable<GetCategoryByIdResponse>
-    | GetCategoryByIdResponse;
+    request: GetCategoryByIdRequest,
+  ): Promise<GetCategoryByIdResponse> | Observable<GetCategoryByIdResponse> | GetCategoryByIdResponse;
 
   getCategories(
-    request: GetCategoriesRequest
-  ):
-    | Promise<GetCategoriesResponse>
-    | Observable<GetCategoriesResponse>
-    | GetCategoriesResponse;
+    request: GetCategoriesRequest,
+  ): Promise<GetCategoriesResponse> | Observable<GetCategoriesResponse> | GetCategoriesResponse;
 
   deleteCategory(
-    request: DeleteCategoryRequest
+    request: DeleteCategoryRequest,
+  ): Promise<DeleteCategoryResponse> | Observable<DeleteCategoryResponse> | DeleteCategoryResponse;
+
+  /** Новые методы для улучшенной работы с категориями */
+
+  getCategoryTree(
+    request: GetCategoryTreeRequest,
+  ): Promise<GetCategoryTreeResponse> | Observable<GetCategoryTreeResponse> | GetCategoryTreeResponse;
+
+  getProductsByCategory(
+    request: GetProductsByCategoryRequest,
+  ): Promise<GetProductsByCategoryResponse> | Observable<GetProductsByCategoryResponse> | GetProductsByCategoryResponse;
+
+  getCategoryBreadcrumbs(
+    request: GetCategoryBreadcrumbsRequest,
   ):
-    | Promise<DeleteCategoryResponse>
-    | Observable<DeleteCategoryResponse>
-    | DeleteCategoryResponse;
+    | Promise<GetCategoryBreadcrumbsResponse>
+    | Observable<GetCategoryBreadcrumbsResponse>
+    | GetCategoryBreadcrumbsResponse;
 }
 
 export function CategoryServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      'createCategory',
-      'updateCategory',
-      'getCategoryById',
-      'getCategories',
-      'deleteCategory',
+      "createCategory",
+      "updateCategory",
+      "getCategoryById",
+      "getCategories",
+      "deleteCategory",
+      "getCategoryTree",
+      "getProductsByCategory",
+      "getCategoryBreadcrumbs",
     ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method
-      );
-      GrpcMethod('CategoryService', method)(
-        constructor.prototype[method],
-        method,
-        descriptor
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("CategoryService", method)(constructor.prototype[method], method, descriptor);
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method
-      );
-      GrpcStreamMethod('CategoryService', method)(
-        constructor.prototype[method],
-        method,
-        descriptor
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("CategoryService", method)(constructor.prototype[method], method, descriptor);
     }
   };
 }
 
-export const CATEGORY_SERVICE_NAME = 'CategoryService';
+export const CATEGORY_SERVICE_NAME = "CategoryService";
