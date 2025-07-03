@@ -1,11 +1,10 @@
 /**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
+ * Auth Microservice with structured logging
  */
 
-import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app/app.module';
 import { join } from 'path';
 
@@ -17,12 +16,24 @@ async function bootstrap() {
       options: {
         url: '0.0.0.0:50051',
         package: 'auth',
-        protoPath: join(__dirname, '/proto/auth.proto'),
+        protoPath: join(__dirname, '../../../proto/auth.proto'),
       },
     }
   );
-  Logger.log(`🚀 Microservice is running on: http://localhost:50051/`);
+
+  // Используем Winston логгер
+  const logger = await app.resolve(WINSTON_MODULE_NEST_PROVIDER);
+  app.useLogger(logger);
+
+  logger.log('🚀 Auth Microservice starting...', 'Bootstrap');
+  logger.log(`📡 gRPC Server listening on port 50051`, 'Bootstrap');
+
   await app.listen();
+
+  logger.log('✅ Auth Microservice successfully started', 'Bootstrap');
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Failed to start Auth Microservice:', error);
+  process.exit(1);
+});

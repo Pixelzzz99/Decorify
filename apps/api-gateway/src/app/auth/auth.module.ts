@@ -10,6 +10,13 @@ import {
 } from '@sofa-web/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { AuthGuard, RolesGuard } from './guards';
+import { SimpleAuthGuard } from './guards/simple-auth.guard';
+import {
+  SecurityHeadersMiddleware,
+  RequestLoggingMiddleware,
+  XssProtectionMiddleware
+} from './middleware';
 
 @Global()
 @Module({
@@ -45,7 +52,23 @@ import { AuthService } from './auth.service';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    AuthGuard,
+    SimpleAuthGuard,
+    RolesGuard,
+    SecurityHeadersMiddleware,
+    RequestLoggingMiddleware,
+    XssProtectionMiddleware,
+  ],
+  exports: [
+    AuthService,
+    AuthGuard,
+    SimpleAuthGuard,
+    RolesGuard,
+    SecurityHeadersMiddleware,
+    RequestLoggingMiddleware,
+    XssProtectionMiddleware,
+  ],
 })
 export class AuthModule {}
