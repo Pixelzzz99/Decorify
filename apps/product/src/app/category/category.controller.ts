@@ -88,4 +88,50 @@ export class CategoryController {
       });
     }
   }
+
+  @GrpcMethod('CategoryService', 'GetCategoryTree')
+  async getCategoryTree() {
+    try {
+      return await this.categoryService.getCategoryTree();
+    } catch (error) {
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Internal server error',
+      });
+    }
+  }
+
+  @GrpcMethod('CategoryService', 'GetProductsByCategory')
+  async getProductsByCategory(@Body() data: {
+    categoryId: number;
+    includeSubcategories?: boolean;
+    skip?: number;
+    take?: number;
+  }) {
+    try {
+      return await this.categoryService.getProductsByCategory(
+        data.categoryId,
+        data.includeSubcategories ?? true,
+        data.skip ?? 0,
+        data.take ?? 10
+      );
+    } catch (error) {
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Internal server error',
+      });
+    }
+  }
+
+  @GrpcMethod('CategoryService', 'GetCategoryBreadcrumbs')
+  async getCategoryBreadcrumbs(@Body() data: { categoryId: number }) {
+    try {
+      return await this.categoryService.getCategoryBreadcrumbs(data.categoryId);
+    } catch (error) {
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Internal server error',
+      });
+    }
+  }
 }

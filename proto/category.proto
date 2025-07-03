@@ -19,7 +19,7 @@ message CreateCategoryResponse {
     Category category = 1;
 }
 
-message UpdateCategoryRequest { 
+message UpdateCategoryRequest {
     int32 id =1;
     string categoryName = 2;
     int32 parentCategoryId = 3;
@@ -50,11 +50,61 @@ message DeleteCategoryResponse {
     string message = 1;
 }
 
+// Новые сообщения для улучшенной работы с категориями
+message CategoryWithStats {
+    Category category = 1;
+    int32 productsCount = 2;
+    int32 subcategoriesCount = 3;
+    repeated CategoryWithStats subCategories = 4;
+}
+
+message GetCategoryTreeRequest {}
+message GetCategoryTreeResponse {
+    repeated CategoryWithStats categories = 1;
+}
+
+message GetProductsByCategoryRequest {
+    int32 categoryId = 1;
+    bool includeSubcategories = 2;
+    int32 skip = 3;
+    int32 take = 4;
+}
+
+message ProductInCategory {
+    int32 id = 1;
+    string productName = 2;
+    string description = 3;
+    double price = 4;
+    int32 stockQuantity = 5;
+    repeated string imageUrls = 6;
+    string vendorName = 7;
+    int32 vendorId = 8;
+}
+
+message GetProductsByCategoryResponse {
+    repeated ProductInCategory products = 1;
+    int32 total = 2;
+    repeated int32 categoryIds = 3;
+}
+
+message GetCategoryBreadcrumbsRequest {
+    int32 categoryId = 1;
+}
+
+message GetCategoryBreadcrumbsResponse {
+    repeated Category breadcrumbs = 1;
+}
+
 service CategoryService {
     rpc CreateCategory(CreateCategoryRequest) returns (CreateCategoryResponse);
     rpc UpdateCategory(UpdateCategoryRequest) returns (UpdateCategoryResponse);
     rpc GetCategoryById(GetCategoryByIdRequest) returns (GetCategoryByIdResponse);
     rpc GetCategories(GetCategoriesRequest) returns (GetCategoriesResponse);
     rpc DeleteCategory(DeleteCategoryRequest) returns (DeleteCategoryResponse);
+
+    // Новые методы для улучшенной работы с категориями
+    rpc GetCategoryTree(GetCategoryTreeRequest) returns (GetCategoryTreeResponse);
+    rpc GetProductsByCategory(GetProductsByCategoryRequest) returns (GetProductsByCategoryResponse);
+    rpc GetCategoryBreadcrumbs(GetCategoryBreadcrumbsRequest) returns (GetCategoryBreadcrumbsResponse);
 }
 
