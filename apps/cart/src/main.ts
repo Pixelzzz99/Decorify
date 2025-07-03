@@ -1,14 +1,12 @@
 /**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
+ * Cart Microservice with structured logging
  */
 
-import { join } from 'path';
-import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app/app.module';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -18,12 +16,24 @@ async function bootstrap() {
       options: {
         url: '0.0.0.0:50056',
         package: 'cart',
-        protoPath: join(__dirname, '/proto/cart.proto'),
+        protoPath: join(__dirname, '../../../proto/cart.proto'),
       },
     }
   );
-  Logger.log(`🚀 Microservice is running on: http://localhost:50056/`);
+
+  // Используем Winston логгер
+  const logger = await app.resolve(WINSTON_MODULE_NEST_PROVIDER);
+  app.useLogger(logger);
+
+  logger.log('🚀 Cart Microservice starting...', 'Bootstrap');
+  logger.log(`📡 gRPC Server listening on port 50056`, 'Bootstrap');
+  
   await app.listen();
+  
+  logger.log('✅ Cart Microservice successfully started', 'Bootstrap');
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Failed to start Cart Microservice:', error);
+  process.exit(1);
+});
