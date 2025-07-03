@@ -1,0 +1,19 @@
+[build]
+  builder = "nixpacks"
+  buildCommand = "npm run build:all && npm run prisma:generate"
+
+[deploy]
+  healthcheckPath = "/health"
+  healthcheckTimeout = 300
+  restartPolicyType = "on_failure"
+
+# Мониторинг ресурсов
+[monitoring]
+  memoryLimit = "1Gi"
+  cpuLimit = "1000m"
+
+# Environment variables для всех сервисов
+[env]
+  NODE_ENV = "production"
+  PRISMA_CLI_BINARY_TARGETS = "native,debian-openssl-3.0.x"
+  HEALTH_CHECK_PORT = "8080"

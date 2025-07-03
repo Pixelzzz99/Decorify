@@ -1,0 +1,81 @@
+# Railway ignore file - исключаем файлы из деплоя
+
+# Development
+.env
+.env.local
+.env.development
+.env.test
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+.nyc_output
+*.lcov
+
+# Build artifacts (кроме dist/)
+.next/
+build/
+tmp/
+temp/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Git
+.git/
+.gitignore
+
+# Documentation (при желании)
+docs/
+*.md
+!README.md
+
+# SSL certificates (для локальной разработки)
+ssl/
+*.pem
+*.key
+*.crt
+
+# E2E tests
+*-e2e/
+cypress/
+*.e2e-spec.ts
+
+# Backups
+backups/
+*.backup
+*.dump
+
+# Temporary files
+*.tmp
+*.temp

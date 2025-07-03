@@ -1,13 +1,13 @@
 /**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
+ * Product Microservice with structured logging and health checks
  */
 
-import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { join } from 'path';
 import { AppModule } from './app/app.module';
+import { HealthCheckServer, getHealthCheckPort } from '@sofa-web/common';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
@@ -15,18 +15,53 @@ async function bootstrap() {
     {
       transport: Transport.GRPC,
       options: {
-        url: '0.0.0.0:50053',
+        url: '0.0.0.0:50052',
         package: ['product', 'category'],
         protoPath: [
-          join(__dirname, '/proto/product.proto'),
-          join(__dirname, '/proto/category.proto'),
+          join(__dirname, '../../../proto/product.proto'),
+          join(__dirname, '../../../proto/category.proto'),
         ],
       },
     }
   );
 
-  Logger.log(`🚀 Microservice is running on: http://localhost:50053/`);
+  // Используем Winston логгер
+  const logger = await app.resolve(WINSTON_MODULE_NEST_PROVIDER);
+  app.useLogger(logger);
+
+  // Запускаем health check сервер для Railway
+  const healthCheckPort = getHealthCheckPort('product');
+  const healthServer = new HealthCheckServer({
+    serviceName: 'product',
+    port: healthCheckPort,
+    grpcPort: 50052,
+    customChecks: async () => ({
+      database: 'connected', // TODO: Add real DB health check
+      grpc: 'ready',
+      services: ['product', 'category']
+    })
+  });
+
+  await healthServer.start();
+
+  logger.log('🚀 Product Microservice starting...', 'Bootstrap');
+  logger.log(`📡 gRPC Server listening on port 50052`, 'Bootstrap');
+  logger.log(`🔍 Health check available on port ${healthCheckPort}`, 'Bootstrap');
+
   await app.listen();
+
+  logger.log('✅ Product Microservice successfully started', 'Bootstrap');
+
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    logger.log('🛑 Shutting down Product Microservice...', 'Bootstrap');
+    await healthServer.stop();
+    await app.close();
+    process.exit(0);
+  });
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Failed to start Product Microservice:', error);
+  process.exit(1);
+});
