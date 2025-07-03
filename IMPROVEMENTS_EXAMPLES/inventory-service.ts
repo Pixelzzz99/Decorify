@@ -13,7 +13,7 @@ export class InventoryService {
         // Check if enough stock is available
         const product = await tx.product.findUnique({
           where: { id: item.productId },
-          select: { stockQuantity: true, productName: true }
+          select: { stockQuantity: true, productName: true },
         });
 
         if (!product) {
@@ -33,8 +33,8 @@ export class InventoryService {
             quantity: item.quantity,
             reservedAt: new Date(),
             expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
-            status: 'RESERVED'
-          }
+            status: 'RESERVED',
+          },
         });
 
         // Update product stock
@@ -42,9 +42,9 @@ export class InventoryService {
           where: { id: item.productId },
           data: {
             stockQuantity: {
-              decrement: item.quantity
-            }
-          }
+              decrement: item.quantity,
+            },
+          },
         });
 
         reservations.push(reservation);
@@ -57,14 +57,14 @@ export class InventoryService {
   async commitReservation(reservationId: number) {
     return this.prisma.inventoryReservation.update({
       where: { id: reservationId },
-      data: { status: 'COMMITTED' }
+      data: { status: 'COMMITTED' },
     });
   }
 
   async releaseReservation(reservationId: number) {
     return this.prisma.$transaction(async (tx) => {
       const reservation = await tx.inventoryReservation.findUnique({
-        where: { id: reservationId }
+        where: { id: reservationId },
       });
 
       if (!reservation) {
@@ -76,26 +76,28 @@ export class InventoryService {
         where: { id: reservation.productId },
         data: {
           stockQuantity: {
-            increment: reservation.quantity
-          }
-        }
+            increment: reservation.quantity,
+          },
+        },
       });
 
       // Mark reservation as released
       await tx.inventoryReservation.update({
         where: { id: reservationId },
-        data: { status: 'RELEASED' }
+        data: { status: 'RELEASED' },
       });
     });
   }
 
   async cleanupExpiredReservations() {
-    const expiredReservations = await this.prisma.inventoryReservation.findMany({
-      where: {
-        expiresAt: { lt: new Date() },
-        status: 'RESERVED'
+    const expiredReservations = await this.prisma.inventoryReservation.findMany(
+      {
+        where: {
+          expiresAt: { lt: new Date() },
+          status: 'RESERVED',
+        },
       }
-    });
+    );
 
     for (const reservation of expiredReservations) {
       await this.releaseReservation(reservation.id);
