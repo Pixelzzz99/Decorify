@@ -1,30 +1,30 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import {
+  PaymentServiceController,
+  PaymentServiceControllerMethods,
+  ProcessPaymentRequest,
+  ProcessPaymentResponse,
+  GetPaymentStatusRequest,
+  GetPaymentStatusResponse,
+  RefundPaymentRequest,
+  RefundPaymentResponse,
+} from '@sofa-web/common';
 import { PaymentService } from './payment.service';
 
 @Controller()
-export class PaymentController {
+@PaymentServiceControllerMethods()
+export class PaymentController implements PaymentServiceController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @GrpcMethod('PaymentService', 'ProcessPayment')
-  async processPayment(data: {
-    orderId: string;
-    amount: number;
-    currency: string;
-  }) {
-    const { orderId, amount, currency } = data;
-    return this.paymentService.processPayment(orderId, amount, currency);
+  async processPayment(request: ProcessPaymentRequest): Promise<ProcessPaymentResponse> {
+    return this.paymentService.processPayment(request);
   }
 
-  @GrpcMethod('PaymentService', 'GetPaymentStatus')
-  async getPaymentStatus(data: { paymentId: string }) {
-    const { paymentId } = data;
-    return this.paymentService.getPaymentStatus(paymentId);
+  async getPaymentStatus(request: GetPaymentStatusRequest): Promise<GetPaymentStatusResponse> {
+    return this.paymentService.getPaymentStatus(request);
   }
 
-  @GrpcMethod('PaymentService', 'RefundPayment')
-  async refundPayment(data: { paymentId: string; amount?: number }) {
-    const { paymentId, amount } = data;
-    return this.paymentService.refundPayment(paymentId, amount);
+  async refundPayment(request: RefundPaymentRequest): Promise<RefundPaymentResponse> {
+    return this.paymentService.refundPayment(request);
   }
 }

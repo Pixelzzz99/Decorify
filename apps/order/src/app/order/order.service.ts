@@ -1,16 +1,17 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { PrismaService } from '@sofa-web/prisma';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, PaymentStatus } from '@prisma/client';
+import { Cart, GetCartResponse } from '@sofa-web/common';
 
 interface PaymentSerice {
-  processPayment(data: any): Promise<any>;
-  getPaymentStatus(data: any): Promise<any>;
+  processPayment(data: unknown): Promise<unknown>;
+  getPaymentStatus(data: unknown): Promise<unknown>;
 }
 
 interface CartService {
-  getCart(data: { userId: string }): Promise<any>;
+  getCart(data: { userId: string }): Observable<GetCartResponse>;
 }
 
 @Injectable()
@@ -31,27 +32,34 @@ export class OrderService implements OnModuleInit {
   }
 
   async createOrder(userId: string, shippingAddress: string) {
-    const cart = await firstValueFrom(
+    const cartResponse = await firstValueFrom(
       await this.cartService.getCart({ userId })
     );
 
-    if (!cart || cart.items.length) {
+    const cart = cartResponse.cart;
+    if (!cart || !cart.items || cart.items.length === 0) {
       throw new Error('Cart is empty');
     }
 
     const order = await this.prisma.order.create({
       data: {
-        userId: +userId,
+        User: {
+          connect: { id: +userId }
+        },
         shippingAddress,
         totalPrice: cart.total,
         OrderItems: {
           create: cart.items.map((item) => ({
-            productId: item.productId,
+            Product: {
+              connect: { id: +item.productId }
+            },
             quantity: item.quantity,
-            price: item.price,
+            unitPrice: item.price,
+            totalPrice: item.price * item.quantity,
           })),
         },
         orderStatus: OrderStatus.CREATED,
+        paymentStatus: PaymentStatus.UNPAID,
       },
       include: {
         OrderItems: true,

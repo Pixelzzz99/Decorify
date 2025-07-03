@@ -1,0 +1,46 @@
+syntax = 'proto3';
+
+package payment;
+
+service PaymentService {
+  rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse) {}
+  rpc GetPaymentStatus(GetPaymentStatusRequest) returns (GetPaymentStatusResponse) {}
+  rpc RefundPayment(RefundPaymentRequest) returns (RefundPaymentResponse) {}
+}
+
+message ProcessPaymentRequest {
+  string order_id = 1;
+  double amount = 2;
+  string currency = 3;
+  string payment_method = 4;
+  string card_token = 5;
+}
+
+message ProcessPaymentResponse {
+  int32 status = 1;
+  repeated string errors = 2;
+  string payment_id = 3;
+  string transaction_id = 4;
+}
+
+message GetPaymentStatusRequest {
+  string payment_id = 1;
+}
+
+message GetPaymentStatusResponse {
+  int32 status = 1;
+  string payment_status = 2;
+  string payment_id = 3;
+}
+
+message RefundPaymentRequest {
+  string payment_id = 1;
+  double amount = 2;
+  string reason = 3;
+}
+
+message RefundPaymentResponse {
+  int32 status = 1;
+  repeated string errors = 2;
+  string refund_id = 3;
+}

@@ -14,7 +14,7 @@ import { OrderService } from './order.service';
         options: {
           package: 'cart',
           protoPath: './proto/cart.proto',
-          url: '0.0.0.0:50051',
+          url: '0.0.0.0:50056',
         },
       },
       {
@@ -23,7 +23,7 @@ import { OrderService } from './order.service';
         options: {
           package: 'payment',
           protoPath: './proto/payment.proto',
-          url: '0.0.0.0:50053',
+          url: '0.0.0.0:50054',
         },
       },
     ]),

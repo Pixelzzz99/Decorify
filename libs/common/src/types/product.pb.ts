@@ -51,7 +51,7 @@ export interface CartItem {
   quantity: number;
 }
 
-export interface CreateProducRequest {
+export interface CreateProductRequest {
   productName: string;
   description: string;
   price: number;
@@ -110,7 +110,7 @@ export const PRODUCT_PACKAGE_NAME = 'product';
 
 export interface ProductServiceClient {
   createProduct(
-    request: CreateProducRequest
+    request: CreateProductRequest
   ): Observable<CreateProductResponse>;
 
   updateProduct(
@@ -130,7 +130,7 @@ export interface ProductServiceClient {
 
 export interface ProductServiceController {
   createProduct(
-    request: CreateProducRequest
+    request: CreateProductRequest
   ):
     | Promise<CreateProductResponse>
     | Observable<CreateProductResponse>
