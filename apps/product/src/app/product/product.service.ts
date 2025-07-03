@@ -7,7 +7,7 @@ import { PrismaService } from '@sofa-web/prisma';
 import { Product } from '@prisma/client';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { InventoryClient } from '../inventory/inventory.client';
+// import { InventoryClient } from '../inventory/inventory.client'; // Disabled for Railway deployment
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
 
@@ -19,8 +19,8 @@ interface ProductFull extends Product {
 @Injectable()
 export class ProductService {
   constructor(
-    private prisma: PrismaService,
-    private inventoryClient: InventoryClient
+    private prisma: PrismaService
+    // private inventoryClient: InventoryClient // Disabled for Railway deployment
   ) {}
 
   async getProducts(skip = 0, take = 10): Promise<ProductFull[]> {
@@ -96,8 +96,8 @@ export class ProductService {
         },
       });
 
-      // Sync with inventory service
-      await this.inventoryClient.syncWithProduct(product.id);
+      // Sync with inventory service (disabled for Railway deployment)
+      // await this.inventoryClient.syncWithProduct(product.id);
 
       return product;
     } catch (error) {
@@ -174,8 +174,8 @@ export class ProductService {
       },
     });
 
-    // Sync with inventory service
-    await this.inventoryClient.updateStock(productId, stockQuantity);
+    // Sync with inventory service (disabled for Railway deployment)
+    // await this.inventoryClient.updateStock(productId, stockQuantity);
 
     return updatedProduct;
   }
@@ -219,12 +219,12 @@ export class ProductService {
         });
       }
 
-      // Get inventory data
-      const inventory = await this.inventoryClient.getProductStock(productId);
+      // Get inventory data (disabled for Railway deployment)
+      // const inventory = await this.inventoryClient.getProductStock(productId);
 
       return {
         ...product,
-        inventory: inventory.data,
+        // inventory: inventory.data, // Disabled for Railway deployment
       };
     } catch (error) {
       if (error instanceof RpcException) throw error;

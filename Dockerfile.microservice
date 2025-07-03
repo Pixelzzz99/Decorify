@@ -1,0 +1,61 @@
+# Multi-stage build для оптимизации размера образа
+FROM node:18-alpine AS base
+
+# Устанавливаем зависимости для building
+RUN apk add --no-cache libc6-compat curl
+WORKDIR /app
+
+# Копируем package files
+COPY package*.json ./
+COPY nx.json ./
+COPY tsconfig.base.json ./
+
+FROM base AS deps
+# Устанавливаем только production зависимости
+RUN npm ci --only=production && npm cache clean --force
+
+FROM base AS builder
+# Устанавливаем все зависимости для сборки
+RUN npm ci
+
+# Копируем исходный код
+COPY . .
+
+# Генерируем protobuf типы
+RUN npm run proto:all
+
+# Генерируем Prisma client
+RUN npm run prisma:generate
+
+# Собираем все микросервисы
+RUN npm run build:all
+
+# Production образ
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+# Устанавливаем curl для health checks
+RUN apk add --no-cache curl
+
+# Создаем пользователя для запуска приложения
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nestjs
+
+# Копируем собранные приложения
+COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
+COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nestjs:nodejs /app/proto ./proto
+
+USER nestjs
+
+# Определяем порт через environment variable
+EXPOSE $PORT
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:$PORT/health || exit 1
+
+# Запускаем приложение
+CMD ["sh", "-c", "node dist/apps/${SERVICE_NAME}/main.js"]

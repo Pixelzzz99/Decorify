@@ -161,6 +161,22 @@ async function bootstrap() {
     },
   });
 
+  // Health check endpoint для Railway
+  app.getHttpAdapter().get('/health', (req, res) => {
+    res.json({
+      status: 'ok',
+      service: 'api-gateway',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV,
+      version: process.env.npm_package_version || '1.0.0',
+      railway: {
+        deployment_id: process.env.RAILWAY_DEPLOYMENT_ID,
+        replica_id: process.env.RAILWAY_REPLICA_ID
+      }
+    });
+  });
+
   const port = process.env.PORT || 3000;
   await app.listen(port);
 
