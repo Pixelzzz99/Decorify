@@ -5,28 +5,30 @@ import { APP_GUARD } from '@nestjs/core';
 // import { MicroserviceMonitoringModule, MetricsController } from '@sofa-web/common';
 
 import { AuthModule } from './auth/auth.module';
-// Временно отключаем модули с AuthGuard для тестирования HTTPS
-// import { ProductModule } from './product/product.module';
-// import { OrderModule } from './order/order.module';
-// import { CartModule } from './cart/cart.module';
-// import { VendorModule } from './vendor/vendor.module';
-// import { PaymentModule } from './payment/payment.module';
-// import { CategoryModule } from './category/category.module';
+import { OrderModule } from './order/order.module';
+import { ProductModule } from './product/product.module';
+import { VendorModule } from './vendor/vendor.module';
+import { PaymentModule } from './payment/payment.module';
+import { CategoryModule } from './category/category.module';
+import { CartModule } from './cart/cart.module';
 import { HealthModule } from './health/health.module';
 import { TestModule } from './test/test.module';
 import {
   SecurityHeadersMiddleware,
   RequestLoggingMiddleware,
-  XssProtectionMiddleware
+  XssProtectionMiddleware,
 } from './auth/middleware';
 
 @Module({
   imports: [
-    // Временно отключаем мониторинг из-за ошибок метрик
+    // Temporary disable monitoring due to metrics errors
     // MicroserviceMonitoringModule.forRoot({
     //   serviceName: 'api-gateway',
     //   port: 3000,
     // }),
+
+    // Auth module first to ensure global providers are available
+    AuthModule,
 
     // Rate limiting configuration
     ThrottlerModule.forRoot([
@@ -50,14 +52,13 @@ import {
     // Application modules
     HealthModule,
     TestModule,
-    AuthModule,
     // Временно отключаем модули с AuthGuard для тестирования HTTPS
-    // ProductModule,
-    // OrderModule,
-    // CartModule,
-    // VendorModule,
-    // PaymentModule,
-    // CategoryModule
+    ProductModule,
+    OrderModule,
+    CartModule,
+    VendorModule,
+    PaymentModule,
+    CategoryModule,
   ],
   controllers: [
     // Временно отключаем MetricsController
@@ -74,7 +75,11 @@ import {
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(SecurityHeadersMiddleware, RequestLoggingMiddleware, XssProtectionMiddleware)
+      .apply(
+        SecurityHeadersMiddleware,
+        RequestLoggingMiddleware,
+        XssProtectionMiddleware
+      )
       .forRoutes('*');
   }
 }

@@ -186,7 +186,7 @@ export class ProductController implements OnModuleInit {
     }
   })
   @ApiNotFoundResponse({ description: 'Товар не найден' })
-  // // @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   private async getProductById(
     @Param('id', ParseIntPipe) id: number
   ): Promise<Observable<GetProductByIdResponse>> {
@@ -234,7 +234,7 @@ export class ProductController implements OnModuleInit {
       }
     }
   })
-  // // @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   private async getProducts(
     @Query('skip') skip?: number,
     @Query('take') take?: number,
@@ -268,7 +268,6 @@ export class ProductController implements OnModuleInit {
     return this.svc.updateProduct({ ...body, id });
   }
 
-  @Delete(':id')
   @Delete(':id')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.VENDOR, UserRole.ADMIN)

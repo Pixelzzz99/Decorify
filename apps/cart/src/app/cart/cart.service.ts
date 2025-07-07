@@ -2,29 +2,25 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { RedisService } from './redis.service';
 import { firstValueFrom } from 'rxjs';
-import { Product } from '@prisma/client';
 import { PrismaService } from '@sofa-web/prisma';
 import { RpcException } from '@nestjs/microservices';
 import { status } from '@grpc/grpc-js';
-
-interface CatalogService {
-  getProduct(data: { id: string }): Promise<any>;
-}
+import { PRODUCT_SERVICE_NAME, ProductServiceClient } from '@sofa-web/common';
 
 @Injectable()
 export class CartService implements OnModuleInit {
-  private catalogService: CatalogService;
+  private productService: ProductServiceClient;
   private readonly CART_EXPIRY = 60 * 60 * 24 * 7; // 7 days
 
   constructor(
-    @Inject('PRODUCT_SERVICE') private client: ClientGrpc,
+    @Inject(PRODUCT_SERVICE_NAME) private client: ClientGrpc,
     private readonly redisService: RedisService,
     private readonly prismaService: PrismaService
   ) {}
 
   onModuleInit() {
-    this.catalogService =
-      this.client.getService<CatalogService>('CatalogService');
+    this.productService =
+      this.client.getService<ProductServiceClient>(PRODUCT_SERVICE_NAME);
   }
 
   async getCart(userId: string) {
@@ -38,11 +34,11 @@ export class CartService implements OnModuleInit {
 
   async addItem(userId: string, productId: string, quantity: number) {
     try {
-      const product = await firstValueFrom<Product>(
-        await this.catalogService.getProduct({ id: productId })
+      const productResponse = await firstValueFrom(
+        this.productService.getProductById({ id: parseInt(productId) })
       );
 
-      if (!product) {
+      if (!productResponse.product) {
         throw new Error('Product not found');
       }
 
@@ -57,7 +53,7 @@ export class CartService implements OnModuleInit {
         cart.items.push({
           productId,
           quantity,
-          price: product.price,
+          price: productResponse.product.price,
         });
       }
 
